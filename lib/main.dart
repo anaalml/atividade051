@@ -30,18 +30,22 @@ class AgendamentoEventoTela extends StatefulWidget {
   State<AgendamentoEventoTela> createState() => _AgendamentoEventoTelaState();
 }
 
+enum Visibilidade { public, private, vip }
+
 class _AgendamentoEventoTelaState extends State<AgendamentoEventoTela> {
   // --- 1. Valores Padrão (para reset) ---
   static final DateTime _dataPadrao = DateTime.now();
   static const TimeOfDay _horarioPadrao = TimeOfDay(hour: 19, minute: 0);
   static const String _tipoPadrao = 'Aniversário';
   static const double _convidadosPadrao = 50.0;
+  static const Visibilidade _visibilidadePadrao = .private;
 
   // --- 2. Variáveis de Estado ---
   late DateTime _dataSelecionada;
   late TimeOfDay _horarioSelecionado;
   late String _tipoEventoSelecionado;
   late double _quantidadeConvidados;
+  late Visibilidade _visibilidadeSelecionada;
 
   @override
   void initState() {
@@ -55,6 +59,7 @@ class _AgendamentoEventoTelaState extends State<AgendamentoEventoTela> {
       _horarioSelecionado = _horarioPadrao;
       _tipoEventoSelecionado = _tipoPadrao;
       _quantidadeConvidados = _convidadosPadrao;
+      _visibilidadeSelecionada = _visibilidadePadrao;
     });
     print('[DEBUG] Formulário resetado para os valores padrão.');
   }
@@ -69,6 +74,7 @@ class _AgendamentoEventoTelaState extends State<AgendamentoEventoTela> {
     print('Horário: ${_horarioSelecionado.format(context)}');
     print('Tipo de Evento: $_tipoEventoSelecionado');
     print('Estimativa de Convidados: ${_quantidadeConvidados.round()}');
+    print('Visibilidade: $_visibilidadeSelecionada');
     print('==========================================');
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -211,6 +217,41 @@ class _AgendamentoEventoTelaState extends State<AgendamentoEventoTela> {
                   '[DEBUG - Slider] Quantidade de Convidados: ${novoValor.round()}',
                 );
               },
+            ),
+            const Divider(height: 32),
+
+            // --- 5. Radio ---
+            Text(
+              'Visibilidade do Evento',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+
+            RadioGroup<Visibilidade>(
+              groupValue: _visibilidadeSelecionada,
+              onChanged: (Visibilidade? visibilidade) {
+                setState(() {
+                  _visibilidadeSelecionada = visibilidade!;
+                  print('[DEBUG - Radio] Visibilidade: $Visibilidade');
+                });
+              },
+              child: Column(
+                children: [
+                  ListTile(
+                    title: Text('Público'),
+                    leading: Radio<Visibilidade>(value: Visibilidade.public),
+                  ),
+
+                  ListTile(
+                    title: Text('Privado'),
+                    leading: Radio<Visibilidade>(value: Visibilidade.private),
+                  ),
+
+                  ListTile(
+                    title: Text('Apenas Convidados'),
+                    leading: Radio<Visibilidade>(value: Visibilidade.vip),
+                  ),
+                ],
+              ),
             ),
             const Divider(height: 32),
           ],
