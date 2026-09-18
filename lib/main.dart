@@ -4,27 +4,70 @@ void main() {
   runApp(const MeuApp());
 }
 
-class MeuApp extends StatelessWidget {
+class MeuApp extends StatefulWidget {
   const MeuApp({super.key});
+
+  @override
+  State<MeuApp> createState() => _MeuAppState();
+}
+
+class _MeuAppState extends State<MeuApp> {
+  // Controle do modo do tema
+  ThemeMode _modoTema = ThemeMode.dark;
+
+  // Função para alternar entre tema claro e escuro
+  void _alternarTema() {
+    setState(() {
+      _modoTema = _modoTema == ThemeMode.light
+          ? ThemeMode.dark
+          : ThemeMode.light;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Agendamento de Evento',
       debugShowCheckedModeBanner: false,
+      themeMode: _modoTema,
+
+      // --- TEMA CLARO ---
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color.fromARGB(255, 43, 66, 107),
+          brightness: Brightness.light,
+        ),
+      ),
+
+      // --- TEMA ESCURO ---
+      darkTheme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color.fromARGB(255, 43, 66, 107),
+          brightness: Brightness.dark,
+        ),
+        scaffoldBackgroundColor: const Color.fromARGB(255, 20, 20, 20),
       ),
 
       // Aponta Home para Classe AgendamentoEventoTela
-      home: const AgendamentoEventoTela(),
+      home: AgendamentoEventoTela(
+        onAlternarTema: _alternarTema,
+        isEscuro: _modoTema == ThemeMode.dark,
+      ),
     );
   }
 }
 
 class AgendamentoEventoTela extends StatefulWidget {
-  const AgendamentoEventoTela({super.key});
+  final VoidCallback onAlternarTema;
+  final bool isEscuro;
+
+  const AgendamentoEventoTela({
+    super.key,
+    required this.onAlternarTema,
+    required this.isEscuro,
+  });
 
   @override
   State<AgendamentoEventoTela> createState() => _AgendamentoEventoTelaState();
@@ -146,6 +189,18 @@ class _AgendamentoEventoTelaState extends State<AgendamentoEventoTela> {
       appBar: AppBar(
         title: const Text('Novo Evento Social'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: [
+          // BOTÃO ADICIONADO PARA ALTERNAR O TEMA
+          IconButton(
+            icon: Icon(
+              widget.isEscuro ? Icons.wb_sunny : Icons.nightlight_round,
+            ),
+            tooltip: widget.isEscuro
+                ? 'Mudar para Tema Claro'
+                : 'Mudar para Tema Escuro',
+            onPressed: widget.onAlternarTema,
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -251,32 +306,47 @@ class _AgendamentoEventoTelaState extends State<AgendamentoEventoTela> {
               style: Theme.of(context).textTheme.titleMedium,
             ),
 
-            RadioGroup<Visibilidade>(
+            RadioListTile<Visibilidade>(
+              title: const Text('Público'),
+              value: Visibilidade.public,
               groupValue: _visibilidadeSelecionada,
-              onChanged: (Visibilidade? visibilidade) {
-                setState(() {
-                  _visibilidadeSelecionada = visibilidade!;
-                  print('[DEBUG - Radio] Visibilidade: $Visibilidade');
-                });
+              dense: true,
+              onChanged: (Visibilidade? valor) {
+                if (valor != null) {
+                  setState(() {
+                    _visibilidadeSelecionada = valor;
+                  });
+                  print('[DEBUG - Radio] Visibilidade: $valor');
+                }
               },
-              child: Column(
-                children: [
-                  ListTile(
-                    title: Text('Público'),
-                    leading: Radio<Visibilidade>(value: Visibilidade.public),
-                  ),
-
-                  ListTile(
-                    title: Text('Privado'),
-                    leading: Radio<Visibilidade>(value: Visibilidade.private),
-                  ),
-
-                  ListTile(
-                    title: Text('Apenas Convidados'),
-                    leading: Radio<Visibilidade>(value: Visibilidade.vip),
-                  ),
-                ],
-              ),
+            ),
+            RadioListTile<Visibilidade>(
+              title: const Text('Privado'),
+              value: Visibilidade.private,
+              groupValue: _visibilidadeSelecionada,
+              dense: true,
+              onChanged: (Visibilidade? valor) {
+                if (valor != null) {
+                  setState(() {
+                    _visibilidadeSelecionada = valor;
+                  });
+                  print('[DEBUG - Radio] Visibilidade: $valor');
+                }
+              },
+            ),
+            RadioListTile<Visibilidade>(
+              title: const Text('Apenas Convidados'),
+              value: Visibilidade.vip,
+              groupValue: _visibilidadeSelecionada,
+              dense: true,
+              onChanged: (Visibilidade? valor) {
+                if (valor != null) {
+                  setState(() {
+                    _visibilidadeSelecionada = valor;
+                  });
+                  print('[DEBUG - Radio] Visibilidade: $valor');
+                }
+              },
             ),
             const Divider(height: 32),
 
